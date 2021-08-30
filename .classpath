@@ -6,7 +6,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/yw325/Desktop/pdfbox-2.0.24.jar"/>
-	<classpathentry kind="lib" path="C:/Users/yw325/Desktop/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/pdfbox-2.0.24.jar"/>
+	<classpathentry kind="lib" path="C:/commons-logging-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -56,13 +56,16 @@ public class Main
 				e.printStackTrace();
 			}
 			
-			
-			System.out.println("###################################");
-			System.out.println("Width: " + list.get(list.size() -1).width);
-			System.out.println("Height: " + list.get(list.size() -1).height);
-			System.out.println("Path: " + list.get(list.size() -1).path);
-			System.out.println("###################################\n");
+			System.out.println(list.get(list.size() - 1).path);
+			//System.out.println("###################################");
+			//System.out.println("Width: " + list.get(list.size() -1).width);
+			//System.out.println("Height: " + list.get(list.size() -1).height);
+			//System.out.println("Path: " + list.get(list.size() -1).path);
+			//System.out.println("###################################\n");
 		}	
+		
+		System.out.println();
+		System.out.println();
 	}
 	
 	//PDFƒtƒ@ƒCƒ‹‚ğ¶¬
@@ -96,16 +99,13 @@ public class Main
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
 					
-				
+				System.out.println( "[¬Œ÷]: "+ new File(list.get(i).path).getName());
 				stream.close();	
 	    	}
+					
+			document.save(fileName.getName() +".pdf");	
 			
-			
-			
-			
-			
-			document.save(fileName.getName() +".pdf");
-	
+			System.out.println("==================== Š®—¹ ====================");
 			document.close();
 			
 			
