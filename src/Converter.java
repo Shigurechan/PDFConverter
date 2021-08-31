@@ -15,26 +15,14 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+
+
+
+
 public class Converter extends Thread
 {
 	File fileName;	//ディレクトリパス
 	
-	//画像クラス
-	class Image
-	{
-		//コンストラクタ
-		public Image(int w,int h,String n)
-		{
-			width = w;
-			height = h;
-			path = n;
-		}
-		
-		
-		public int width;	//横
-		public int height;	//縦
-		public String path;	//パス
-	}
 	
 	//ファイルの画像パスを取得
 	private void GetDirectory(File dir,List<Image> list)
@@ -148,7 +136,8 @@ public class Converter extends Thread
 		fileName = new File(filePath);
 	}
 	
-	public void Run()
+	@Override
+	public void run()
 	{
 		List<Image> imageList  = new ArrayList<>();
 		List<String> fileList = new ArrayList<>();
