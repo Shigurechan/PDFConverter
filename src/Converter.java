@@ -7,6 +7,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 import java.util.ArrayList;
+//import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -16,28 +18,41 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 
+/* ##################################################################
+ * ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®PDFã‚’ç”Ÿæˆ 
+ * ##################################################################*/
 
 
 
 public class Converter extends Thread
 {
-	File fileName;	//ƒfƒBƒŒƒNƒgƒŠƒpƒX
+	File fileName;	
 	
 	
-	//ƒtƒ@ƒCƒ‹‚Ì‰æ‘œƒpƒX‚ğæ“¾
 	private void GetDirectory(File dir,List<Image> list)
 	{
 		
-		System.out.println("==================== ƒtƒ@ƒCƒ‹“Ç‚İ‚İ@==================== ");
 		
+		
+		List<String> strList = new ArrayList<>();
+		
+		
+		
+		for(int i = 0; i < dir.listFiles().length; i++)
+		{
+			strList.add(dir.listFiles()[i].getPath());
+		}
+		
+		Collections.sort(strList);	
+				
 		int i = 0;
 		for(; i < dir.listFiles().length; i++)
 		{				
 			boolean w = false;
 			try 
 			{
-				BufferedImage b  = ImageIO.read(dir.listFiles()[i]);
-				Image img = new Image(b.getWidth(),b.getHeight(),dir.listFiles()[i].getPath());
+				BufferedImage b  = ImageIO.read(new File(strList.get(i)));
+				Image img = new Image(b.getWidth(),b.getHeight(),strList.get(i));
 						
 				list.add(img);
 				
@@ -47,7 +62,7 @@ public class Converter extends Thread
 			{
 				
 				w = true;
-				System.out.println("###### Warning: –¢‘Î‰‚Ìƒtƒ@ƒCƒ‹Œ`®‚Å‚·: " + dir.listFiles()[i].getPath() + " ######");
+				
 				
 			}
 			catch (IOException e) 
@@ -58,16 +73,12 @@ public class Converter extends Thread
 			
 			if ( w == false)
 			{
-				System.out.println(list.get(list.size() - 1).path);
+				//System.out.println(list.get(list.size() - 1).path);
 			}
-			//System.out.println("###################################");
-			//System.out.println("Width: " + list.get(list.size() -1).width);
-			//System.out.println("Height: " + list.get(list.size() -1).height);
-			//System.out.println("Path: " + list.get(list.size() -1).path);
-			//System.out.println("###################################\n");
+			
 		}	
 		
-		System.out.println("ƒy[ƒW”: " + i);
+		
 		
 		
 		
@@ -76,17 +87,17 @@ public class Converter extends Thread
 	}
 	
 	
-	//PDFƒtƒ@ƒCƒ‹‚ğ¶¬
+	
 	private void GeneratePDF(List<Image> list,List<String> pathList,File fileName)
 	{
 		try
 		{
-			PDDocument document = new PDDocument();	//ƒhƒLƒ…ƒƒ“ƒg
-			List<PDPage> page = new ArrayList<>();	//ƒy[ƒW
+			PDDocument document = new PDDocument();	
+			List<PDPage> page = new ArrayList<>();	
 			
-			System.out.println("==================== ƒy[ƒW¶¬@==================== ");	//‰æ–Ê•\¦
 			
-			//ƒy[ƒW¶¬
+			
+			
 			for(Image image  : list)
 	    	{							
 				PDRectangle rec = new PDRectangle();
@@ -95,16 +106,13 @@ public class Converter extends Thread
 				rec.setLowerLeftX(image.width);
 				rec.setLowerLeftY(image.height);
 				
-				System.out.println(image.path + "  --- size ---> ("+ image.width + " , " + image.height + ")");
+				//System.out.println(image.path + "  --- size ---> ("+ image.width + " , " + image.height + ")");
 					
 				page.add(new PDPage(rec));
-				document.addPage(page.get(page.size() -1));
-					
+				document.addPage(page.get(page.size() -1));					
 	    	}
 			
-			System.out.println("\n==================== ‘‚«‚İ ====================");
-			
-			//‰æ‘œÄ‚«•t‚¯ 
+		
 			for(int i = 0; i < list.size(); i++)
 	    	{
 				
@@ -112,14 +120,14 @@ public class Converter extends Thread
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
 					
-				System.out.println( "[¬Œ÷]: "+ new File(list.get(i).path).getName());
+			
 				stream.close();	
 	    	}
 			
-			System.out.println("==================== PDF¶¬’† ====================\n");
+			
 			document.save(fileName.getParent() + "\\" + fileName.getName() + ".pdf");	
 			System.out.println("--->: " + fileName.getParent() + "\\" + fileName.getName() + ".pdf");
-			System.out.println("\n==================== Š®—¹ ====================");
+
 			
 			document.close();
 						
@@ -130,7 +138,7 @@ public class Converter extends Thread
 		}
 	}
 	
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	
 	public Converter(String filePath) 
 	{				
 		fileName = new File(filePath);
@@ -143,10 +151,8 @@ public class Converter extends Thread
 		List<String> fileList = new ArrayList<>();
 			
 		System.out.println();
-		GetDirectory(fileName,imageList);					//‰æ‘œƒpƒX“Ç‚İ‚İ 	
-		GeneratePDF(imageList,fileList,fileName);			//PDFƒtƒ@ƒCƒ‹‚ğ¶¬				
+		GetDirectory(fileName,imageList);					 	
+		GeneratePDF(imageList,fileList,fileName);							
 	}
-	
-	
 	
 }

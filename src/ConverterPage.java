@@ -12,9 +12,13 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+/* ##################################################################
+ * å˜ä¸€ã®ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰PDFã‚’ç”Ÿæˆ 
+ * ##################################################################*/
+
 public class ConverterPage extends Thread
 {
-	File pageName;	//ƒy[ƒW
+	File pageName;
 	
 	public ConverterPage(String file)
 	{
@@ -26,35 +30,31 @@ public class ConverterPage extends Thread
 	{
 		try
 		{				
-			BufferedImage b  = ImageIO.read(pageName);								//‰æ‘œƒ[ƒh
-			Image img = new Image(b.getWidth(),b.getHeight(),pageName.getPath());	//ƒy[ƒWƒTƒCƒY
-			PDDocument document = new PDDocument();									//ƒhƒLƒ…ƒƒ“ƒg		
+			BufferedImage b  = ImageIO.read(pageName);								
+			Image img = new Image(b.getWidth(),b.getHeight(),pageName.getPath());	
+			PDDocument document = new PDDocument();											
 			PDRectangle rec = new PDRectangle();
 			rec.setUpperRightX(0);
 			rec.setUpperRightY(0);
 			rec.setLowerLeftX(img.width);
 			rec.setLowerLeftY(img.height);
-			PDPage page = new PDPage(rec);
-			
-//			System.out.println(img.path + "  --- size ---> ("+ img.width + " , " + img.height + ")");
-			
+			PDPage page = new PDPage(rec);			
+			document.addPage(page);
 			
 			PDImageXObject xImage = PDImageXObject.createFromFile(pageName.getPath(),document);
 			PDPageContentStream stream = new PDPageContentStream(document,page);
 			stream.drawImage(xImage, 0,0);
-				
-//			System.out.println( "[¬Œ÷]: "+ new File(pageName.getPath()).getName());
+			stream.close();
 			
-			stream.close();	
+			document.save(pageName.getParent() + "\\" + pageName.getName() + ".pdf");	
+//			System.out.println("--->: " + fileName.getParent() + "\\" + fileName.getName() + ".pdf");
+			
+				
 		}
 		catch(IOException e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
 	
 }

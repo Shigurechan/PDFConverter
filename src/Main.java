@@ -4,31 +4,26 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main 
-{
-
-	
-	
+{	
 	public static void main(String args[]) 
 	{	
 		Scanner scanner = new Scanner(System.in);	
-		List<Converter> dirList = new ArrayList<>();
-		List<ConverterPage> pageList = new ArrayList<>();
-		
-		System.out.println("Ctrl + Z ‚ÅƒGƒ“ƒR[ƒhŠJn");
-		
-	
-		
-		int i = 0;	//•\¦—p
+		List<Converter> dirList = new ArrayList<>();		//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
+		List<ConverterPage> pageList = new ArrayList<>();	//ãƒšãƒ¼ã‚¸
+			
+		int i = 0;	//è¡¨ç¤ºç”¨
 		while(true)
-		{	
-	
+		{
+			
+			System.out.print("\n\nDirectoryã€€or File > ");
+			
 			if(scanner.hasNextLine() == false)
 			{
 				break;
 			}
 			
 			
-			System.out.print("\n\nDirectory: ");
+
 			String fileName = scanner.nextLine();
 			System.out.println(fileName);
 			
@@ -38,16 +33,15 @@ public class Main
 			
 			System.out.println(" " + i + " >: " + fileName);
 			
+			//ãƒ•ã‚¡ã‚¤ãƒ«ã‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‹ã‚’é¸åˆ¥
 			if(file.exists() == true)
-			{
-				
+			{				
 				if(file.isFile() == true)
 				{
 					String extension = file.getName().substring(file.getName().lastIndexOf("."));
 					
 					if(extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg"))
-					{
-						System.out.println("‚ ‚ ‚ ");
+					{					
 						pageList.add(new ConverterPage(fileName));
 					}	
 				}
@@ -58,16 +52,14 @@ public class Main
 			}
 			else
 			{
-				System.out.println("ƒfƒBƒŒƒNƒgƒŠ‚Ü‚½‚Íƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚Ü‚¹‚ñB");
+				System.out.println("å¯¾å¿œå½¢å¼ã§ã¯ã‚Šã¾ã›ã‚“: " + file.getName());
 			}	
 			
-			i++;
-			
-			
-			
+			i++;	
 		}
 		
 		
+		//ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
 		if(dirList.size() > 0)
 		{
 			for(Converter con : dirList)
@@ -77,6 +69,7 @@ public class Main
 				
 		}
 		
+		//ãƒ•ã‚¡ã‚¤ãƒ«
 		if(pageList.size() > 0)
 		{
 			for(ConverterPage con : pageList)
@@ -87,11 +80,13 @@ public class Main
 		
 		try
 		{
+			//å¾…æ©Ÿ
 			for(Converter con : dirList)
 			{
 				con.join();
 			}	
 			
+			//å¾…æ©Ÿ
 			for(ConverterPage con : pageList)
 			{
 				con.join();
@@ -106,7 +101,7 @@ public class Main
 		scanner.close(); //scanner close
 	
 		
-		System.out.println("I—¹");
+		System.out.println("çµ‚äº†");
 	}
 }
 

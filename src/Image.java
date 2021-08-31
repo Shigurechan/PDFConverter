@@ -1,7 +1,7 @@
 
 public class Image 
 {		
-	//コンストラクタ
+	
 	public Image(int w,int h,String n)
 	{
 		width = w;
@@ -10,7 +10,7 @@ public class Image
 	}
 	
 	
-	public int width;	//横
-	public int height;	//縦
-	public String path;	//パス	
+	public int width;	
+	public int height;	
+	public String path;	
 }
