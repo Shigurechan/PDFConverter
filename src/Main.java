@@ -2,13 +2,13 @@
 
 import java.io.IOException;
 import java.io.File;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
-
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -35,6 +35,9 @@ public class Main
 		public int height;	//縦
 		public String path;	//パス
 	}
+
+
+	
 	
 	//ファイルの画像パスを取得
 	static public void GetDirectory(File dir,List<Image> list)
@@ -102,10 +105,13 @@ public class Main
 				System.out.println( "[成功]: "+ new File(list.get(i).path).getName());
 				stream.close();	
 	    	}
-					
-			document.save(fileName.getName() +".pdf");	
+			
+			
+						
+			document.save(fileName.getParent() + "\\" + fileName.getName() + ".pdf");	
 			
 			System.out.println("==================== 完了 ====================");
+			System.out.println(">: " + fileName.getParent() + "\\" + fileName.getName() + ".pdf");
 			document.close();
 			
 			
