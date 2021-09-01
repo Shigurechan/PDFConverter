@@ -28,7 +28,7 @@ public class Main
 			}
 			
 			
-
+			
 			String fileName = scanner.nextLine();
 			System.out.println(fileName);
 			
@@ -37,7 +37,7 @@ public class Main
 			//System.out.println(file.getName().substring(file.getName().lastIndexOf(".")));
 			
 			System.out.println(" " + i + " >: " + fileName);
-			
+		
 			//ファイルかディレクトリかを選別
 			if(file.exists() == true)
 			{				
@@ -85,43 +85,24 @@ public class Main
 		
 		long startTime = System.currentTimeMillis();	//開始時間
 		
-		while(true)
+
+		try
 		{
-			boolean page = true;
-			boolean dir = true;
-			//待機
 			for(Converter con : dirList)
 			{
-				if(con.isAlive() == false)
-				{
-					dir = false;
-				}
-				else
-				{
-					dir = true;
-				}
-			}	
-			
-			//待機
-			for(ConverterPage con : pageList)
-			{
-				if(con.isAlive() == false)
-				{
-					page = false;
-				}
-				else
-				{
-					page = true;
-				}
-			}	
-			
-			if((page == false) && (dir == false))
-			{
-				break;
+				con.join();	
 			}
 			
-			
+			for(ConverterPage con : pageList)
+			{
+				con.join();
+			}
 		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		
 		
 		scanner.close(); //scanner close
 		
