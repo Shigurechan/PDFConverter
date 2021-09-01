@@ -1,4 +1,5 @@
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,11 +12,15 @@ public class Main
 		List<Converter> dirList = new ArrayList<>();		//ディレクトリ
 		List<ConverterPage> pageList = new ArrayList<>();	//ページ
 			
+		System.out.println("windows: Cntrl + z 開始");
+		System.out.println("linux: Cntrl + D 開始\n");
+		
+		
 		int i = 0;	//表示用
 		while(true)
 		{
 			
-			System.out.print("\n\nDirectory　or File > ");
+			System.out.print("\nDirectory　or File > ");
 			
 			if(scanner.hasNextLine() == false)
 			{
@@ -66,7 +71,7 @@ public class Main
 			{
 				con.start();
 			}
-				
+			
 		}
 		
 		//ファイル
@@ -78,30 +83,50 @@ public class Main
 			}	
 		}
 		
-		try
+		long startTime = System.currentTimeMillis();	//開始時間
+		
+		while(true)
 		{
+			boolean page = true;
+			boolean dir = true;
 			//待機
 			for(Converter con : dirList)
 			{
-				con.join();
+				if(con.isAlive() == false)
+				{
+					dir = false;
+				}
+				else
+				{
+					dir = true;
+				}
 			}	
 			
 			//待機
 			for(ConverterPage con : pageList)
 			{
-				con.join();
+				if(con.isAlive() == false)
+				{
+					page = false;
+				}
+				else
+				{
+					page = true;
+				}
 			}	
 			
-		}
-		catch(InterruptedException e)
-		{
-			e.printStackTrace();
+			if((page == false) && (dir == false))
+			{
+				break;
+			}
+			
+			
 		}
 		
 		scanner.close(); //scanner close
-	
 		
-		System.out.println("終了");
+		long endTime = System.currentTimeMillis();	//終了時間
+		System.out.println("終了: " + (endTime - startTime));
 	}
 }
 

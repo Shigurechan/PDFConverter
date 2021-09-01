@@ -106,7 +106,7 @@ public class Converter extends Thread
 				rec.setLowerLeftX(image.width);
 				rec.setLowerLeftY(image.height);
 				
-				//System.out.println(image.path + "  --- size ---> ("+ image.width + " , " + image.height + ")");
+				System.out.println(image.path + "  --- size ---> ("+ image.width + " , " + image.height + ")");
 					
 				page.add(new PDPage(rec));
 				document.addPage(page.get(page.size() -1));					
@@ -120,13 +120,13 @@ public class Converter extends Thread
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
 					
-			
+				System.out.println( "PDF generation: "+ list.get(i).path);
 				stream.close();	
 	    	}
 			
 			
-			document.save(fileName.getParent() + "\\" + fileName.getName() + ".pdf");	
-			System.out.println("--->: " + fileName.getParent() + "\\" + fileName.getName() + ".pdf");
+			document.save(fileName.getPath() + "\\" + fileName.getName() + ".pdf");	
+			System.out.println("--->: " + fileName.getPath() + "\\" + fileName.getName() + ".pdf");
 
 			
 			document.close();
