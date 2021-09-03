@@ -1,113 +1,85 @@
-import java.io.File;
-
+import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+//import org.apache.pdfbox.pdmodel.PDPageContentStream;
+//import org.apache.pdfbox.pdmodel.common.PDRectangle;
+//import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
 
 public class Main 
 {	
+	
 	public static void main(String args[]) 
 	{	
-		Scanner scanner = new Scanner(System.in);	
-		List<Converter> dirList = new ArrayList<>();		//ディレクトリ
-		List<ConverterPage> pageList = new ArrayList<>();	//ページ
-			
-		System.out.println("windows: Cntrl + z 開始");
-		System.out.println("linux: Cntrl + D 開始\n");
-		
-		
-		int i = 0;	//表示用
+		final int threadNum = 8;	//スレッド数
+
+
+		Scanner scanner = new Scanner(System.in);		
 		while(true)
 		{
 			
-			System.out.print("\nDirectory　or File > ");
-			
-			if(scanner.hasNextLine() == false)
-			{
-				break;
-			}
-			
-			
-			
-			String fileName = scanner.nextLine();
-			System.out.println(fileName);
-			
-			File file = new File(fileName);
-			
-			//System.out.println(file.getName().substring(file.getName().lastIndexOf(".")));
-			
-			System.out.println(" " + i + " >: " + fileName);
-		
-			//ファイルかディレクトリかを選別
-			if(file.exists() == true)
-			{				
-				if(file.isFile() == true)
-				{
-					String extension = file.getName().substring(file.getName().lastIndexOf("."));
-					
-					if(extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg"))
-					{					
-						pageList.add(new ConverterPage(fileName));
-					}	
-				}
-				else
-				{	
-					dirList.add(new Converter(fileName));
-				}
-			}
-			else
-			{
-				System.out.println("対応形式ではりません: " + file.getName());
-			}	
-			
-			i++;	
-		}
-		
-		
-		//ディレクトリ
-		if(dirList.size() > 0)
-		{
-			for(Converter con : dirList)
-			{
-				con.start();
-			}
-			
-		}
-		
-		//ファイル
-		if(pageList.size() > 0)
-		{
-			for(ConverterPage con : pageList)
-			{
-				con.start();
-			}	
-		}
-		
-		long startTime = System.currentTimeMillis();	//開始時間
-		
 
-		try
-		{
-			for(Converter con : dirList)
-			{
-				con.join();	
+			System.out.println("windows: Ctrl + Z 開始");
+			System.out.println("linux:   Ctrl + D 開始\n");
+			
+			List<File> file = new ArrayList<>();				//ディレクトパス
+			List<ConvertDirectory> dirList = new ArrayList<>();	//変換ディレクトリ
+
+			while(true)
+			{			
+				System.out.print("\nDirectory　or File > ");			
+							
+				if(scanner.hasNextLine() == false) { break; }				
+				String fileName = scanner.nextLine();
+			
+				file.add(new File(fileName));	
 			}
 			
-			for(ConverterPage con : pageList)
+			ExecutorService pool = Executors.newFixedThreadPool(threadNum);
+
+			for(File f : file)
 			{
-				con.join();
+				dirList.add(new ConvertDirectory(f,threadNum,pool));
 			}
-		}
-		catch(InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-		
-		
-		scanner.close(); //scanner close
-		
-		long endTime = System.currentTimeMillis();	//終了時間
-		System.out.println("終了: " + (endTime - startTime));
+			
+					
+			//処理を開始
+			for(ConvertDirectory c : dirList)
+			{
+				c.Start();        
+			}
+
+
+			//スレッドを閉じる
+			try
+			{
+				pool.shutdown();	//スレッドプールを閉じる
+				pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);            	
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+
+			//終了処理
+			for(ConvertDirectory c : dirList)
+			{
+				c.End();        
+			}
+
+			System.out.println("\n\n\n\n\n全部終了");		
+
+		}	
+
+		scanner.close(); 		//scanner close
 	}
 }
 
