@@ -11,8 +11,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/* ########################################## 
+ * # ファイル操作クラス
+ * ##########################################*/
+
+
 public class FileControl
 {
+	//処理の進行状況
+	public enum ProcessStatus
+	{
+		Start,				//初期開始
+		LoadFilePath,		//パスを読み込み
+		InputFilePaty,		//パスを設定
+		LoadFileImage,		//画像を読み込み
+		GeneratePage,		//ページを生成
+		GeneratePDF,		//PDFに書き込み
+		FileConcatenation,	//ファイル連結
+		SaveFile,			//ファイルを保存
+		Completion,			//全て完了
+	}
+
 	//ファイルタイプ
 	public enum FileType
 	{
@@ -33,7 +52,7 @@ public class FileControl
 		for(int i = 0; i < dirName.listFiles().length; i++)
 		{
 			strList.add(dirName.listFiles()[i].getPath());
-			System.out.println("Load FilePath: " + dirName.listFiles()[i].getPath());	//デバッグ
+//			System.out.println("Load FilePath: " + dirName.listFiles()[i].getPath());	//デバッグ
 		}
 		
 		Collections.sort(strList);	//順番にソート	
@@ -53,7 +72,7 @@ public class FileControl
 					for(int j = 0; j < num + notMuch; j++)
 					{
 						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+//						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
 					}									
 				}
 				else
@@ -61,7 +80,7 @@ public class FileControl
 					for(int j = 0; j < num; j++)
 					{
 						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+//						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
 					}				
 				}
 			}	
@@ -75,7 +94,7 @@ public class FileControl
 				for(int j = 0; j < num; j++)
 				{
 					outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-					System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+//					System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
 				}								
 			}
 		}
@@ -92,7 +111,7 @@ public class FileControl
 			try 
 			{
 				BufferedImage b  = ImageIO.read(new File(outList.get(i).path));							
-				System.out.println("LoadFileImage: " + outList.get(i).path +  " --- size ---> ("+ b.getWidth() + " , " + b.getHeight() + ")");	//デバッグ
+//				System.out.println("LoadFileImage: " + outList.get(i).path +  " --- size ---> ("+ b.getWidth() + " , " + b.getHeight() + ")");	//デバッグ
 				outList.get(i).width = b.getWidth();
 				outList.get(i).height = b.getHeight();
 					

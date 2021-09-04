@@ -5,8 +5,9 @@ import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
 
+import java.util.concurrent.Callable;
+
 import java.util.ArrayList;
-//import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,22 +17,30 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+
+
+
 /* ##################################################################
  * PDF 生成 ディレクトリ
  * ##################################################################*/
 
+//public class Converter implements Callable<FileControl.ProcessStatus>
 public class Converter implements Runnable
-//public class Converter implements Runnable
 {
-	File filePath;	
+	
+	int threadNumber;					//スレッド番号
+
+
 	PDDocument document;
 	List<Image> convList = new ArrayList<>();	
 
+	//document
 	public PDDocument getDocument()
 	{
 		return document;
 	}
 
+	//PDFを生成
 	private void GeneratePDF(List<Image> fileList)
 	{
 		try
@@ -39,11 +48,14 @@ public class Converter implements Runnable
 			
 			List<PDPage> page = new ArrayList<>();	
 			
-			
+	//		status = FileControl.ProcessStatus.LoadFileImage;
+
 			FileControl.LoadImage(convList);	//画像をロード
 
+	//		status = FileControl.ProcessStatus.GeneratePage;
 
-			
+			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.GeneratePage);	//進行状況
+
 			for(Image image  : fileList)
 	    	{							
 				PDRectangle rec = new PDRectangle();
@@ -52,14 +64,16 @@ public class Converter implements Runnable
 				rec.setLowerLeftX(image.width);
 				rec.setLowerLeftY(image.height);
 				
-				System.out.println(image.path + "Page Generate --- size ---> ("+ image.width + " , " + image.height + ")");
+				//System.out.println(image.path + "Page Generate --- size ---> ("+ image.width + " , " + image.height + ")");
 					
 				page.add(new PDPage(rec));
 				
 				document.addPage(page.get(page.size() -1));					
 	    	}
 			
-		
+			//status = FileControl.ProcessStatus.GeneratePage;
+			
+			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.GeneratePDF);	//進行状況
 			for(int i = 0; i < fileList.size(); i++)
 	    	{
 				
@@ -67,10 +81,13 @@ public class Converter implements Runnable
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
 					
-				System.out.println( "PDF Generate: "+ fileList.get(i).path);
+				//System.out.println( "PDF Generate: "+ fileList.get(i).path);
 				stream.close();	
 	    	}
 			
+			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.Completion);	//進行状況
+
+			//status = FileControl.ProcessStatus.Completion;
 			
 			//document.save(filePath.getPath() + "\\" + filePath.getName() + ".pdf");	
 			//System.out.println("--->: " + filePath.getPath() + "\\" + filePath.getName() + ".pdf");
@@ -85,20 +102,19 @@ public class Converter implements Runnable
 		}
 	}
 	
-	
-	public Converter(List<Image> a) 
-	{				
+	//コンストラクタ
+	public Converter(List<Image> i,int n) 
+	{
+		threadNumber = n;
 		document = new PDDocument();	
-		//filePath = path;
-
-		convList = a;
+		convList = i;
 	}
 	
+	//実行
 	@Override
 	public void run()
 	{
 		GeneratePDF(convList);	//生成
-
 	}
 	
 }

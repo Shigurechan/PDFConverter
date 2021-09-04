@@ -1,71 +1,16 @@
 #!/bin/bash
 
-result="0" # 結果
-cmdCompile="javac -verbose -cp lib/pdfbox.jar:lib/commons.jar: src/*.java -d bin"    # コンパイル
-cmdGenerateJarFile="jar cvfm PDFConverter.jar manifest.mf -C bin ./"                 # .jarファイル生成
-cmdExecutableJar="java -jar PDFConverter.jar"                                        # .jar実行
-
-# コンパイル
-function Compile()
-{
-    $cmdCompile
-    result=$? 
-}  
-
-# .jarファイル生成
-function GenerateJar()
-{
-    $cmdGenerateJarFile
-    result=$?   
-}  
-
-#.jarファイル実行
-function ExecutableJar()
-{
-    $cmdExecutableJar
-    result=$?
-}
-
-
-
-### コマンド実行
 clear
-
-
-Compile
-if [ reuslt = "1" ] ; then
-
-    echo -e
-    echo -e
-
-    echo "コンパイルエラー"
-
-    echo -e
-    echo -e
-else
-
-    GenerateJar
-    if [ reuslt = "1" ] ; then
-        echo -e
-        echo -e
-
-        echo ".jarファイル生成エラー"
-
-        echo -e
-        echo -e 
+javac -verbose -cp lib/pdfbox.jar:lib/commons.jar: src/*.java -d bin    # コンパイル
+if [ $? = "0" ] ; then
+    jar cvfm PDFConverter.jar manifest.mf -C bin ./                         # .jarファイル生成
+    java -jar PDFConverter.jar                                              # .jar実行
     else
-        clear
-        ExecutableJar
-        if [ reuslt = "1" ] ; then
-            echo -e
-            echo -e
+        echo -e
+        echo -e
 
-            echo ".jar実行エラー"
+        echo "          Compile Error "
 
-            echo -e
-            echo -e
-        fi
+        echo -e
+        echo -e   
     fi
-fi        
-
-#COMMENTOUT

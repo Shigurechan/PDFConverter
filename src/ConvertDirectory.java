@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -23,9 +24,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 
 public class ConvertDirectory
 {
+    static List<FileControl.ProcessStatus> status = new ArrayList<>();	//進行状況
+	static int a;
+
     File path;      //ディレクトリパス
-    int threadNum;  //スレッド数
-    List<Converter> dirList = new ArrayList<>();		//変換		
+	List<Converter> dirList = new ArrayList<>();		//変換		
     List<List<Image>> image  = new ArrayList<>();       //画像
 	
     ExecutorService pool;   //スレッドプール
@@ -37,38 +40,47 @@ public class ConvertDirectory
 
 
     //コンストラクタ
-    public ConvertDirectory(File p,int t,ExecutorService es)
+    public ConvertDirectory(File p,ExecutorService es)
     {
         path = p;
-        threadNum = t;
+        
         pool = es;
     }
+
+	public void Status()
+	{
+		
+	}
+
 
 
     
     public void Start()
     {
-        
-		FileControl.GetDirectory(path,image,threadNum);	//パス取得
+		FileControl.GetDirectory(path,image,Main.threadNum);	//パス取得
 
-		for(int i = 0; i < threadNum; i++)
+		for(int i = 0; i < Main.threadNum; i++)
 		{
-			dirList.add(new Converter(image.get(i)));
+			dirList.add(new Converter(image.get(i),i));
+		
 		}
-
 		startTime = System.currentTimeMillis();	//デバッグ用　開始時間
-
+		
 		//変換
 		for(Converter con : dirList)
 		{
+
+			status.add(FileControl.ProcessStatus.Start);
+			
             pool.submit(con);
+			 
         }
         
-        
-    }
+
+	}
 
 
-    //Join
+    
     public void End()
     {
         
@@ -81,6 +93,13 @@ public class ConvertDirectory
 				document.add(d.getDocument());
 			}
 
+			
+			//進行状況
+			for(int i = 0; i< Main.threadNum; i++)
+			{
+				status.set(i,FileControl.ProcessStatus.FileConcatenation);
+			}
+
 
 			for(int i = 1; i < document.size(); i++)
 			{
@@ -91,9 +110,13 @@ public class ConvertDirectory
 			}
 
             
-    		document.get(0).save("test.pdf");   //保存
+			//進行状況
+			for(int i = 0; i< Main.threadNum; i++)
+			{
+				status.set(i,FileControl.ProcessStatus.SaveFile);
+			}
 
-
+    		document.get(0).save( path.getAbsolutePath() + ".pdf");   //保存
 
             //document.close
             for(Converter d : dirList)
@@ -101,6 +124,14 @@ public class ConvertDirectory
                 d.getDocument().close();
             }
             
+
+			//進行状況
+			for(int i = 0; i< Main.threadNum; i++)
+			{
+				status.set(i,FileControl.ProcessStatus.Completion);
+			}
+
+
 
 		}
 		catch(IOException e)
