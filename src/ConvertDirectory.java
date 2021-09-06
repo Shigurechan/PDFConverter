@@ -46,15 +46,7 @@ public class ConvertDirectory
         
         pool = es;
     }
-
-	public void Status()
-	{
-		
-	}
-
-
-
-    
+	
     public void Start()
     {
 		FileControl.GetDirectory(path,image,Main.threadNum);	//パス取得
@@ -74,8 +66,7 @@ public class ConvertDirectory
 			
             pool.submit(con);
 			 
-        }
-        
+        }       
 
 	}
 
@@ -83,7 +74,6 @@ public class ConvertDirectory
     
     public void End()
     {
-        
         
 		try
 		{
