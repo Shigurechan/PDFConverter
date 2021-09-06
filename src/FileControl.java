@@ -18,19 +18,9 @@ import java.util.List;
 
 public class FileControl
 {
-	//処理の進行状況
-	public enum ProcessStatus
-	{
-		Start,				//初期開始
-		LoadFilePath,		//パスを読み込み
-		InputFilePaty,		//パスを設定
-		LoadFileImage,		//画像を読み込み
-		GeneratePage,		//ページを生成
-		GeneratePDF,		//PDFに書き込み
-		FileConcatenation,	//ファイル連結
-		SaveFile,			//ファイルを保存
-		Completion,			//全て完了
-	}
+
+
+
 
 	//ファイルタイプ
 	public enum FileType
@@ -46,13 +36,19 @@ public class FileControl
 	{
 		List<String> strList = new ArrayList<>();
 
-		//System.out.println("ああああ　"+ dirName.listFiles().length);
+		ProgressBar bar = new ProgressBar();
 
+		//System.out.println("ああああ　"+ dirName.listFiles().length);
 		//パスをロード
+		float per = 100.0f / dirName.listFiles().length;
+		float p = 0;
 		for(int i = 0; i < dirName.listFiles().length; i++)
 		{
+			ConvertDirectory.threadMain.setProcess(Process.Status.LoadFilePath,(int)p,"");	//進行状況
+
 			strList.add(dirName.listFiles()[i].getPath());
 //			System.out.println("Load FilePath: " + dirName.listFiles()[i].getPath());	//デバッグ
+			p += per;
 		}
 		
 		Collections.sort(strList);	//順番にソート	
@@ -60,6 +56,8 @@ public class FileControl
 		//パスを設定
 		int num = strList.size() / splitNum;		//分割の枚数
 		int notMuch = strList.size() % splitNum;	//余り
+
+		
 
 		if(	(float)(strList.size() % splitNum) > 0.0f )
 		{
@@ -72,7 +70,11 @@ public class FileControl
 					for(int j = 0; j < num + notMuch; j++)
 					{
 						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
+
+
+						ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
 //						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+						bar.View(,strList.get(num * i + j));
 					}									
 				}
 				else
@@ -81,6 +83,9 @@ public class FileControl
 					{
 						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
 //						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+
+						bar.View(strList.get(num * i + j));
+						ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
 					}				
 				}
 			}	
@@ -95,6 +100,9 @@ public class FileControl
 				{
 					outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
 //					System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
+
+					ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
+					bar.View(strList.get(num * i + j));
 				}								
 			}
 		}
@@ -154,7 +162,7 @@ public class FileControl
 		}
 		else
 		{
-			System.out.println("対応形式ではりません: " + file.getName());
+			//System.out.println("対応形式ではりません: " + file.getName());
 			return FileType.Invalid;
 		}	
 		

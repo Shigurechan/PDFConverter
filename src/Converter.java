@@ -24,7 +24,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
  * PDF 生成 ディレクトリ
  * ##################################################################*/
 
-//public class Converter implements Callable<FileControl.ProcessStatus>
+//public class Converter implements Callable<Process>
 public class Converter implements Runnable
 {
 	
@@ -47,15 +47,11 @@ public class Converter implements Runnable
 		{
 			
 			List<PDPage> page = new ArrayList<>();	
-			
-	//		status = FileControl.ProcessStatus.LoadFileImage;
-
 			FileControl.LoadImage(convList);	//画像をロード
 
-	//		status = FileControl.ProcessStatus.GeneratePage;
 
-			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.GeneratePage);	//進行状況
-
+			float per = 100.0f / fileList.size();
+			float gauge = 0;		
 			for(Image image  : fileList)
 	    	{							
 				PDRectangle rec = new PDRectangle();
@@ -67,33 +63,32 @@ public class Converter implements Runnable
 				//System.out.println(image.path + "Page Generate --- size ---> ("+ image.width + " , " + image.height + ")");
 					
 				page.add(new PDPage(rec));
+				ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePage,(int)gauge,"");	//進行状況
 				
 				document.addPage(page.get(page.size() -1));					
+				gauge += per;
 	    	}
-			
-			//status = FileControl.ProcessStatus.GeneratePage;
-			
-			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.GeneratePDF);	//進行状況
+						
+			//PDFページに焼付け
+			per = 100.0f / fileList.size();
+			gauge = 0;
 			for(int i = 0; i < fileList.size(); i++)
 	    	{
 				
 				PDImageXObject xImage = PDImageXObject.createFromFile(fileList.get(i).path,document);
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
+
 					
 				//System.out.println( "PDF Generate: "+ fileList.get(i).path);
+				ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePDF,(int)gauge,new File(fileList.get(i).path).getName());	//進行状況
+
 				stream.close();	
+				gauge += per;
 	    	}
 			
-			ConvertDirectory.status.set(threadNumber,FileControl.ProcessStatus.Completion);	//進行状況
+			ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.Completion,100,"");	//進行状況
 
-			//status = FileControl.ProcessStatus.Completion;
-			
-			//document.save(filePath.getPath() + "\\" + filePath.getName() + ".pdf");	
-			//System.out.println("--->: " + filePath.getPath() + "\\" + filePath.getName() + ".pdf");
-
-			
-			//document.close();
 						
 		}
 		catch(IOException e)
@@ -115,6 +110,8 @@ public class Converter implements Runnable
 	public void run()
 	{
 		GeneratePDF(convList);	//生成
+
+		ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePDF_Completion,100,"");	//進行状況
 	}
 	
 }
