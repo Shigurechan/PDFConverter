@@ -35,29 +35,35 @@ public class FileControl
 	public static void GetDirectory(File dirName,List<List<Image>> outList,int splitNum)
 	{
 		List<String> strList = new ArrayList<>();
-
 		ProgressBar bar = new ProgressBar();
 
-		//System.out.println("ああああ　"+ dirName.listFiles().length);
+
 		//パスをロード
 		float per = 100.0f / dirName.listFiles().length;
 		float p = 0;
+
 		for(int i = 0; i < dirName.listFiles().length; i++)
 		{
-			ConvertDirectory.threadMain.setProcess(Process.Status.LoadFilePath,(int)p,"");	//進行状況
-
 			strList.add(dirName.listFiles()[i].getPath());
-//			System.out.println("Load FilePath: " + dirName.listFiles()[i].getPath());	//デバッグ
+
+			ConvertDirectory.threadMain.setProcess(Process.Status.LoadFilePath,(int)p,"");	//進行状況
+			bar.ThreadMainView("");
 			p += per;
 		}
-		
+
+
+		//ConvertDirectory.threadMain.setProcess(Process.Status.LoadFilePath_Completion,(int)p,"");	//進行状況
+		bar.ThreadMainView("");
+		//System.out.println();
+
 		Collections.sort(strList);	//順番にソート	
 
 		//パスを設定
 		int num = strList.size() / splitNum;		//分割の枚数
 		int notMuch = strList.size() % splitNum;	//余り
 
-		
+		per = 100.0f / (float)strList.size();
+		p = 0;
 
 		if(	(float)(strList.size() % splitNum) > 0.0f )
 		{
@@ -70,22 +76,20 @@ public class FileControl
 					for(int j = 0; j < num + notMuch; j++)
 					{
 						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-
-
 						ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
-//						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
-						bar.View(,strList.get(num * i + j));
+						bar.ThreadMainView("");
+
+						p += per;
 					}									
 				}
 				else
 				{
 					for(int j = 0; j < num; j++)
 					{
-						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-//						System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
-
-						bar.View(strList.get(num * i + j));
-						ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
+						outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));					
+						ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況	
+						bar.ThreadMainView("");
+						p += per;
 					}				
 				}
 			}	
@@ -99,21 +103,26 @@ public class FileControl
 				for(int j = 0; j < num; j++)
 				{
 					outList.get(outList.size() - 1).add(new Image(0,0,strList.get(num * i + j)));
-//					System.out.println("Input FilePath: " + strList.get(num * i + j));	//デバッグ
-
-					ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況
-					bar.View(strList.get(num * i + j));
+					ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath,(int)p,"");	//進行状況	
+					bar.ThreadMainView("");
+					p += per;
 				}								
 			}
 		}
 
+		//ConvertDirectory.threadMain.setProcess(Process.Status.InputFilePath_Completion,(int)p,"");	//進行状況
+		bar.ThreadMainView("");
+		//System.out.println();
 		
-
 	}
 
 	//画像をロード
-	public static void LoadImage(List<Image> outList)
+	public static void LoadImage(List<Image> outList,int thread)
 	{
+		float per = 100.0f / outList.size();
+		float p = 0;
+
+
 		for(int i = 0; i < outList.size(); i++)
 		{					
 			try 
@@ -122,8 +131,12 @@ public class FileControl
 //				System.out.println("LoadFileImage: " + outList.get(i).path +  " --- size ---> ("+ b.getWidth() + " , " + b.getHeight() + ")");	//デバッグ
 				outList.get(i).width = b.getWidth();
 				outList.get(i).height = b.getHeight();
-					
+
+				//進行状況
+				ConvertDirectory.status.get(thread).setProcess(Process.Status.LoadFileImage,(int)p,"");
+				p += (per / Main.threadNum);						
 				b = null;
+				
 			} 
 			catch(NullPointerException e)
 			{
@@ -133,9 +146,11 @@ public class FileControl
 			{
 				
 				e.printStackTrace();
-			}
-				
-		}							
+			}				
+		}	
+		
+	//	ConvertDirectory.status.get(thread).setProcess(Process.Status.LoadFileImage_Completion,(int)p,"");
+		
 	}
 
 

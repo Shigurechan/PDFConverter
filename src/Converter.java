@@ -17,9 +17,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-
-
-
 /* ##################################################################
  * PDF 生成 ディレクトリ
  * ##################################################################*/
@@ -47,8 +44,9 @@ public class Converter implements Runnable
 		{
 			
 			List<PDPage> page = new ArrayList<>();	
-			FileControl.LoadImage(convList);	//画像をロード
-
+			FileControl.LoadImage(convList,threadNumber);	//画像をロード
+			//ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.LoadFileImage_Completion,(int)100,"");	//進行状況
+//			System.out.println();
 
 			float per = 100.0f / fileList.size();
 			float gauge = 0;		
@@ -59,16 +57,18 @@ public class Converter implements Runnable
 				rec.setUpperRightY(0);
 				rec.setLowerLeftX(image.width);
 				rec.setLowerLeftY(image.height);
-				
-				//System.out.println(image.path + "Page Generate --- size ---> ("+ image.width + " , " + image.height + ")");
 					
 				page.add(new PDPage(rec));
-				ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePage,(int)gauge,"");	//進行状況
-				
+			
+				ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePage,(int)gauge,"");	//進行状況				
 				document.addPage(page.get(page.size() -1));					
 				gauge += per;
 	    	}
 						
+			//ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePage_Completion,(int)gauge,"");	//進行状況
+
+
+
 			//PDFページに焼付け
 			per = 100.0f / fileList.size();
 			gauge = 0;
@@ -79,15 +79,13 @@ public class Converter implements Runnable
 				PDPageContentStream stream = new PDPageContentStream(document,page.get(i));
 				stream.drawImage(xImage, 0,0);
 
-					
-				//System.out.println( "PDF Generate: "+ fileList.get(i).path);
 				ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePDF,(int)gauge,new File(fileList.get(i).path).getName());	//進行状況
 
 				stream.close();	
 				gauge += per;
 	    	}
 			
-			ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.Completion,100,"");	//進行状況
+			ConvertDirectory.status.get(threadNumber).setProcess(Process.Status.GeneratePDF_Completion,100,"");	//進行状況
 
 						
 		}

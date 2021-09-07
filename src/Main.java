@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.lang.model.util.ElementScanner14;
 import javax.swing.text.DefaultStyledDocument.ElementSpec;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -64,23 +65,26 @@ public class Main
 			}
 		}
 	
-	
+		System.out.println("\u001b[?25l");	//カーソル非表示
+
+		int num = 0;
 		//ディレクトリ処理
 		if(file.size() > 0)
 		{
+			//System.out.print("\u001b[2J");	//画面クリア
 
-			System.out.print("\u001b[2J");	//画面クリア
 			for(File f : file)
 			{
 				ConvertDirectory con = new ConvertDirectory(f,pool);
-
 				con.Start();	//処理開始
+				num++;
 			}
 		}
 		
 		pool.shutdown();
 	
-		System.out.println("\n\n\n\n\n全部終了");			
+		System.out.println();
+		//System.out.println("\n\n\n\n\n全部終了");			
 		System.out.print("\u001b[?25h");		//カーソル表示
 		scanner.close(); 						//scanner close
 		System.exit(0);							//終了

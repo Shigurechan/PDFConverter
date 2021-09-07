@@ -24,10 +24,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
  
 public class ConvertDirectory
 {
-    static List<Process> status = new ArrayList<>();	//進行状況
+    static List<Process> status = new ArrayList<>();							//進行状況
 	static Process threadMain = new Process(Process.Status.Start,-1);			//メインスレッドで処理
-	static int a;
-
+	static String dirName;														//ディレクトリ名
     File path;      //ディレクトリパス
 	List<Converter> dirList = new ArrayList<>();		//変換		
     List<List<Image>> image  = new ArrayList<>();       //画像
@@ -37,8 +36,6 @@ public class ConvertDirectory
     //デバッグ用　処理時間
     long startTime; //開始タイム
     long endTime;   //終了タイム
-
-
 
     //コンストラクタ
     public ConvertDirectory(File p,ExecutorService es)
@@ -50,12 +47,12 @@ public class ConvertDirectory
 	
     public void Start()
     {
+		dirName = path.getName();	//ディレクトリ名
 		FileControl.GetDirectory(path,image,Main.threadNum);	//パス取得
-
+		
 		for(int i = 0; i < Main.threadNum; i++)
 		{
-			dirList.add(new Converter(image.get(i),i));
-		
+			dirList.add(new Converter(image.get(i),i));		
 		}
 
 		startTime = System.currentTimeMillis();	//デバッグ用　開始時間
@@ -82,7 +79,7 @@ public class ConvertDirectory
 			}
 		}
 
-		End();
+		End();	//終了処理
 
 
 	}
@@ -94,13 +91,17 @@ public class ConvertDirectory
         
 		try
 		{
+			ProgressBar b = new ProgressBar();
+			//進行状況
+
+			threadMain.setProcess(Process.Status.FileConcatenation,(int)0,"");
 			List<PDDocument> document = new ArrayList<>();
 			for(Converter d : dirList)
 			{	
 				document.add(d.getDocument());
 			}
 
-			
+			// ファイル連結
 			float per  = 0;
 			int page = 0;	
 			float gauge = 0;
@@ -111,39 +112,36 @@ public class ConvertDirectory
 			per = 100.0f / (float)page;
 
 
-			//ファイル連結処理に以降
-			for(int i = 0; i< Main.threadNum; i++)
-			{
-				status.get(i).setProcess(Process.Status.FileConcatenation,0,"");
-			}
+			//ファイル連結処理に移行
+		
 
-
-
+			//進行状況			
 			for(int i = 1; i < document.size(); i++)
 			{
 				for(int j = 0; j < document.get(i).getNumberOfPages(); j++)
 				{					
-					status.get(i).setProcess(Process.Status.FileConcatenation,(int)gauge,Integer.toString(j));	//ファイル連結中
-					document.get(0).addPage(document.get(i).getPage(j));
-
-					//System.out.print("[ " + Process.Status.FileConcatenation + " ]" + " > " + (gauge) + "%" );
 					
-					gauge += per;
-					if(gauge > 99.0)
-					{
-						gauge = 100;
-					}
+					document.get(0).addPage(document.get(i).getPage(j));
+					
+					//進行状況
+					threadMain.setProcess(Process.Status.FileConcatenation,(int)gauge,"");
+					b.ThreadMainView("");
 
-					//System.out.print("\u001b[2K");		//一行削除
-					//System.out.print("\u001b[0G");		//一番左に移動
-			
+					gauge += per;
+					if(gauge > 99.0){ gauge = 100; }
 				}
 			}
+			
+			//System.out.println();
 
-//			System.out.print("\u001b[2J");			//画面クリア
-			//System.out.println("[ " + Process.Status.SaveFile + " ]");
 
+					
+			//進行状況
+			threadMain.setProcess(Process.Status.SaveFile,-1,"");
+			b.ThreadMainView("");
+	
     		document.get(0).save( path.getAbsolutePath() + ".pdf");   //保存
+			
 
             //document.close
             for(Converter d : dirList)
@@ -151,8 +149,16 @@ public class ConvertDirectory
                 d.getDocument().close();
             }
             
+			//進行状況
+			threadMain.setProcess(Process.Status.Completion,-1,"");
 
-
+			System.out.print("\u001b[0G");		    //一番左に移動
+			System.out.print("\u001b[2K");		    //一行削除 
+			System.out.print("[ " + ConvertDirectory.threadMain.getStatus() +" ] " + "Path: " + path.getAbsolutePath() + ".pdf");
+			
+			//static 変数をリセット
+			status.clear();
+			threadMain.setProcess(Process.Status.Start, 0, "");
 
 		}
 		catch(IOException e)
@@ -162,6 +168,8 @@ public class ConvertDirectory
         
 		endTime = System.currentTimeMillis();	//デバッグ用　終了時間
         
-		System.out.println("処理時間: " + (endTime - startTime));
+
+
+		//System.out.println("\n処理時間: " + (endTime - startTime));
     }
 }

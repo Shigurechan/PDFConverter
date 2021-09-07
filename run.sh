@@ -9,7 +9,7 @@ if [ $? = "0" ] ; then
         echo -e
         echo -e
 
-        echo "          Compile Error "
+        echo "          Compile Error"
 
         echo -e
         echo -e   

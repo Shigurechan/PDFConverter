@@ -1,5 +1,4 @@
 
-
 import java.util.Arrays;
 
 /*
@@ -22,16 +21,17 @@ public class ProgressBar
         if(false == IsStatus(st))
         {
             //System.out.print("\u001b[2J");	    //画面クリア
-            System.out.print("\u001b[2K");		    //一行削除
-            System.out.print("\u001b[1;0H");		//一番上の左に移動
             System.out.print("\u001b[0G");		    //一番左に移動
+            System.out.print("\u001b[2K");		    //一行削除
+            //System.out.print("\u001b[1;0H");		//一番上の左に移動
+            if(NowStatusLate() != Process.Status.Start)          
+            {
+                System.out.print("[ " + NowStatusLate()+" ]  ");
+                System.out.print(" " + ConvertDirectory.dirName);
+                System.out.print(" " + PrograssPercentage()+" %");
 
-            //System.out.print("[ " + str +" ]  ");
-            System.out.print("[ " + NowStatus()+" ]  ");
-            System.out.print(PrograssPercentage()+" %");
 
-
-
+            }
 
             return false;
         }
@@ -43,22 +43,28 @@ public class ProgressBar
     }
 
 
+
+
+
+
     //進行状況を表示
-    public void View(Process.Status st,String str)
+    public void ThreadMainView(String str)
     {
+
         //System.out.print("\u001b[2J");	    //画面クリア
-        System.out.print("\u001b[2K");		    //一行削除
-        System.out.print("\u001b[1;0H");		//一番上の左に移動
         System.out.print("\u001b[0G");		    //一番左に移動
+        System.out.print("\u001b[2K");		    //一行削除
+        //System.out.print("\u001b[1;0H");		//一番上の左に移動
 
-        System.out.print("[ " + str +" ]  ");
-        System.out.print("[ " + st +" ]  ");
-        System.out.print(PrograssPercentage()+" %");
+        //System.out.print("[ " + str +" ]  ");
+        System.out.print("[ " + ConvertDirectory.threadMain.getStatus() +" ] ");
+        if(ConvertDirectory.threadMain.getGauge() >= 0)
+        {
+            System.out.print(ConvertDirectory.threadMain.getGauge()+" %");
+        }
+        System.out.print(" " + ConvertDirectory.dirName);
+
     }
-
-
-
-
 
 
 
@@ -95,10 +101,40 @@ public class ProgressBar
     }
 
 
-    //すべてのプロセスの状況
+
+
+
+    //すべてのプロセスの状況 一番先のやつを返す
+    public Process.Status NowStatusLate()
+    {
+        int a[] = new int[ConvertDirectory.status.size()];
+
+        int i = 0;
+        for(Process s : ConvertDirectory.status)
+        {            
+            a[i] = s.getStatus().ordinal();
+          //  System.out.println(s.getStatus().ordinal());
+          //  System.out.println(a[i]);
+
+            i++;
+        }
+
+        Arrays.sort(a);
+        //System.out.println("ううう " + Process.Status.ValueInt(a[0]));
+        return Process.Status.ValueInt(a[0]);
+    }
+    
+
+
+
+
+
+    //すべてのプロセスの状況 一番先のやつを返す
     public Process.Status NowStatus()
     {
-        Process.Status st[] = new Process.Status[Process.Status.values().length];
+        
+
+        //Process.Status st[] = new Process.Status[Process.Status.values().length];
         int a = 0;
         Process.Status strr = Process.Status.Start;
         for(Process s : ConvertDirectory.status)
